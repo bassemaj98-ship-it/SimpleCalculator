@@ -4,45 +4,41 @@
  */
 package simplecalculator;
 
-import java.util.Scanner;
-
+import com.sun.net.httpserver.HttpServer;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
 
 public class SimpleCalculator {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-          Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) throws Exception {
 
-        // إدخال الرقمين
-        System.out.print("Enter first number: ");
-        double a = scanner.nextDouble();
+        int port = Integer.parseInt(
+                System.getenv().getOrDefault("PORT", "8080")
+        );
 
-        System.out.print("Enter second number: ");
-        double b = scanner.nextDouble();
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
-        // العمليات الحسابية
-        double sum = a + b;
-        double difference = a - b;
-        double division = 0;
+        server.createContext("/add", exchange -> {
+            URI uri = exchange.getRequestURI();
+            String query = uri.getQuery(); // a=5&b=3
 
-        // التحقق من القسمة على صفر
-        if (b != 0) {
-            division = a / b;
-        } else {
-            System.out.println("Cannot divide by zero!");
-        }
+            double a = 0, b = 0;
+            if (query != null) {
+                String[] params = query.split("&");
+                a = Double.parseDouble(params[0].split("=")[1]);
+                b = Double.parseDouble(params[1].split("=")[1]);
+            }
 
-        // عرض النتائج
-        System.out.println("Sum: " + sum);
-        System.out.println("Difference: " + difference);
-        if (b != 0) {
-            System.out.println("Division: " + division);
-        }
+            String response = "Result = " + (a + b);
 
-        scanner.close();
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        });
+
+        server.start();
+        System.out.println("Calculator running on port " + port);
     }
-
 }
-

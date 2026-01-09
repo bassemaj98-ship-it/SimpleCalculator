@@ -1,15 +1,8 @@
 
-# Use Eclipse Temurin OpenJDK 17
-FROM eclipse-temurin:17-jdk
-
-# Set working directory
+FROM eclipse-temurin:17
 WORKDIR /app
+COPY SimpleCalculator.java .
+RUN javac SimpleCalculator.java
+EXPOSE 8080
+CMD ["java", "SimpleCalculator"]
 
-# Copy source code
-COPY src/ src/
-
-# Compile Java source code
-RUN javac src/simplecalculator/SimpleCalculator.java
-
-# Run the application
-CMD ["java", "-cp", "src", "simplecalculator.SimpleCalculator"]
