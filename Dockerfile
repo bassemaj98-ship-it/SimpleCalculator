@@ -1,13 +1,12 @@
 
- FROM openjdk:17-jdk-slim
-
+ FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-COPY src ./src
+COPY src src
+
+RUN javac src/WebApp.java
 
 EXPOSE 8080
 
-RUN javac src/simplecalculator/WebApp.java
-
-CMD ["java", "-cp", "src", "simplecalculator.WebApp"]
+CMD ["java", "-cp", "src", "WebApp"]
